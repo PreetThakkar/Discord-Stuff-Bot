@@ -1,5 +1,5 @@
 var Discord = require("discord.js");
-var config = require("./config.json");
+// var config = require("./config.json");
 var sqlite = require("sqlite");
 
 var client = new Discord.Client();
@@ -88,4 +88,4 @@ client.on("message", async (msg) => {
     }
 });
 
-client.login(config.BOT_TOKEN);
+client.login(process.env.BOT_TOKEN);
