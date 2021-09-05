@@ -1,0 +1,5 @@
+[Setting Up Config Variables](https://devcenter.heroku.com/articles/config-vars#setting-up-config-vars-for-a-deployed-application)
+[Deploying NodeJs on Heroku](https://devcenter.heroku.com/articles/deploying-nodejs)
+[Connecting Discord Node to External Client](https://stackoverflow.com/questions/51446893/connecting-discord-node-js-bot-to-an-external-java-client)
+[Heroku Discord Bot crashes after 60 seconds](https://stackoverflow.com/questions/60235534/why-does-my-heroku-discord-bot-crash-after-it-cant-connect-to-a-port)
+[Herouku web process failed](https://stackoverflow.com/questions/31092538/heroku-node-js-error-r10-boot-timeout-web-process-failed-to-bind-to-port-w)

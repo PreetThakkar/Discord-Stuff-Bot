@@ -4,6 +4,28 @@ var sqlite = require("sqlite");
 
 var client = new Discord.Client();
 
+function deleteMessage(message) {
+    message.delete()
+        .then(message => console.log(`${message.author.username}: ${message.content.slice(1, 10)}... Deleted`))
+        .catch(console.error);
+}
+
+function ennumerate(array){
+    array.sort();
+    var finalString = '';
+    array.forEach( (value, index) => {
+        finalString += `${index+1}. ${value}`;
+        if (!value.includes("\n")) finalString += "\n";
+    });
+    return finalString;
+}
+
+async function send(channel, message){
+    var update = await channel.send("**__UPDATED LIST BELOW__**");
+    var sent = await channel.send(message);
+    sent.pin();
+}
+
 client.on("ready", function () {
     console.log(`Logged in as ${client.user.tag}!`);
 });
@@ -14,45 +36,56 @@ client.on("message", async (msg) => {
     var command = msg.content.split(" ")[0];
     var task = mContent.split(`${command} `)[1];
     var mChannel = msg.channel;
-
+    
     console.log(`Channel: ${mChannel.name}\tContent: ${mContent}`);
     
-    if (command == ".add"){
+    if (mContent.startsWith('.') || mContent == '') await deleteMessage(msg);
+
+    if (command == ".add") {
         // Fetch the last pinned message and add the new task to the list
         var messages = await mChannel.messages.fetchPinned();
-        var pinnedContent = null;
+        var pinnedContent = [];
         messages.forEach((message) => {
-            pinnedContent = message.content + "\n" + task;
+            pinnedContent.push(...message.content.split(/[\d]+. /).slice(1), task);
             message.unpin();
         });
-        var update = await mChannel.send("**__UPDATED LIST BELOW__**");
-        var sent = await mChannel.send(pinnedContent);
-        sent.pin();
-        
+        send(mChannel, ennumerate(pinnedContent));
+
     }
 
-    else if (command == ".clear"){
+    else if (command == ".clear") {
         var messages = await mChannel.messages.fetch();
-        var deleted = messages.forEach( (message) => {
-            if (!message.pinned) message.delete();
+        messages.forEach((message) => {
+            if (!message.pinned) deleteMessage(message);
         });
     }
-    
-    else if (command == ".remove"){
+
+    else if (command == ".remove") {
         var messages = await mChannel.messages.fetchPinned();
         var pinnedContent = [];
-        messages.forEach( (message) => {
+        messages.forEach((message) => {
             message.unpin();
-            pinnedContent = message.content.split('\n');
-            var ind = pinnedContent.indexOf(task);
-            pinnedContent.splice(ind, 1);
+            pinnedContent = message.content.split(/[\d]+. /).slice(1);
+            var regex = /^\d/;
+            if (regex.test(task)) pinnedContent.splice(parseInt(task)-1, 1);
+            else {
+                var ind = pinnedContent.indexOf(task);
+                pinnedContent.splice(ind, 1);
+            }
         });
-        var update = await mChannel.send("**__UPDATED LIST BELOW__**");
-        var sent = await mChannel.send(pinnedContent.join("\n"));
-        sent.pin();
+        send(mChannel, ennumerate(pinnedContent));
     }
 
-    if (mContent.startsWith('.') || mContent == '') msg.delete();
+    else if (command == ".enn") {
+        var finalString = "";
+        var messages = await mChannel.messages.fetchPinned();
+        messages.forEach( (message) => {
+            message.unpin();
+            if (message.content.startsWith("1")) finalString = ennumerate(message.content.split(/[\d]+. /).slice(1));
+            else finalString = ennumerate(message.content.split("\n"));
+        })
+        send(mChannel, finalString);
+    }
 });
 
 client.login(config.BOT_TOKEN);
