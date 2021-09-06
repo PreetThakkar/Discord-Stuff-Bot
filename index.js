@@ -1,5 +1,5 @@
 var Discord = require("discord.js");
-// var config = require("./config.json");
+var config = require("./config.json");
 var sqlite = require("sqlite");
 
 var client = new Discord.Client();
@@ -14,7 +14,7 @@ function ennumerate(array){
     array.sort();
     var finalString = '';
     array.forEach( (value, index) => {
-        finalString += `${index+1}. ${value}`;
+        finalString += `${index+1}.\t${value}`;
         if (!value.includes("\n")) finalString += "\n";
     });
     return finalString;
@@ -37,7 +37,7 @@ client.on("message", async (msg) => {
     var task = mContent.split(`${command} `)[1];
     var mChannel = msg.channel;
     
-    console.log(`Channel: ${mChannel.name}\tContent: ${mContent}`);
+    console.log(`Channel: ${mChannel.name}`);
     
     if (mContent.startsWith('.') || mContent == '') await deleteMessage(msg);
 
@@ -86,6 +86,12 @@ client.on("message", async (msg) => {
         })
         send(mChannel, finalString);
     }
+    
+    else if (mChannel.name == 'notes' && command==".note"){
+        var sent = await mChannel.send(`${task}\n▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀`)
+        sent.pin()
+        
+    }
 });
 
-client.login(process.env.BOT_TOKEN);
+client.login(config.BOT_TOKEN);
